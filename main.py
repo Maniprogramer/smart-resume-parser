@@ -5,33 +5,44 @@ from parser.fields import extract_basic_fields
 from parser.utils import save_to_json
 
 
+RESUMES_DIR = "resumes"
 OUTPUT_DIR = "output"
 
-
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
     extractor = PDFTextExtractor()
 
-    pdf_path = "resumes/resume-0.pdf"  # change if needed
+    for file_name in os.listdir(RESUMES_DIR):
+        if not file_name.lower().endswith(".pdf"):
+            continue
 
-    # 1️⃣ Extract raw text from PDF
-    text = extractor.extract_text(pdf_path)
+        resume_path = os.path.join(RESUMES_DIR, file_name)
+        base_name = os.path.splitext(file_name)[0]
 
-    # 2️⃣ Extract structured fields from text
-    parsed_fields = extract_basic_fields(text)
+        json_output_path = os.path.join(OUTPUT_DIR, f"{base_name}.json")
 
-    # 3️⃣ Save structured data to JSON
-    json_output_path = os.path.join(OUTPUT_DIR, "resume-0.json")
-    save_to_json([parsed_fields], json_output_path)
+        # ✅ Skip if already processed
+        if os.path.exists(json_output_path):
+            print(f"[SKIP] Already processed: {file_name}")
+            continue
 
-    # Optional: print for verification
-    print("\n===== EXTRACTED TEXT START =====\n")
-    print(text)
-    print("\n===== EXTRACTED TEXT END =====\n")
+        print(f"[PROCESS] Extracting: {file_name}")
 
-    print("\n===== PARSED FIELDS =====\n")
-    print(parsed_fields)
+        try:
+            text = extractor.extract_text(resume_path)
+
+            if not text:
+                print(f"[WARNING] No text extracted from {file_name}")
+                continue
+
+            parsed_fields = extract_basic_fields(text)
+            data = [parsed_fields]
+
+            save_to_json(data, json_output_path)
+
+            print(f"[DONE] Saved JSON for {file_name}")
+
+        except Exception as e:
+            print(f"[ERROR] Failed processing {file_name}: {e}")
 
 
 if __name__ == "__main__":
