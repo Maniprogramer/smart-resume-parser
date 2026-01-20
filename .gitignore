@@ -1,0 +1,24 @@
+# --- Project Specific Data ---
+# Ignore the actual resumes (input) and extracted data (output)
+# Keep the folder structure by adding a .gitkeep file inside them if needed
+resumes/*.pdf
+output/*.json
+
+# --- Python Environment ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# --- OS & IDE Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Logs & Temp ---
+*.log
+tmp/
